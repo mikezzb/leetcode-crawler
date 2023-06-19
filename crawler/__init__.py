@@ -5,9 +5,17 @@ import random
 import json
 from tqdm import tqdm
 
-
+OUTPUT_PATH = "output/questions.json"
 ITEMS_PER_PAGE = 100
 ENDPOINT = "https://leetcode.com/graphql/"
+HEADERS = {
+    'Content-Type': 'application/json',
+    'Connection': 'keep-alive',
+    'Referer': 'https://leetcode.com/problemset/all/',
+    'Origin': 'https://leetcode.com',
+    'Content-Type': 'application/json',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36'
+}
 GQL_QUERY_TEMPLATE = """
     query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
   problemsetQuestionList: questionList(
@@ -38,14 +46,6 @@ GQL_QUERY_TEMPLATE = """
   }
 }
 """
-HEADERS = {
-    'Content-Type': 'application/json',
-    'Connection': 'keep-alive',
-    'Referer': 'https://leetcode.com/problemset/all/',
-    'Origin': 'https://leetcode.com',
-    'Content-Type': 'application/json',
-    'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36'
-}
 
 
 class LeetCodeCrawler:
@@ -81,7 +81,7 @@ class LeetCodeCrawler:
             res = self.crawl_page(i)
             questions += self.parse_questions(res)
         # save questions
-        with open('output/questions.json', 'w') as f:
+        with open(OUTPUT_PATH, 'w') as f:
             json.dump(questions, f)
 
     def crawl_page(self, page: int):
@@ -101,7 +101,3 @@ class LeetCodeCrawler:
     def parse_questions(self, res):
         questions = res['data']['problemsetQuestionList']['questions']
         return questions
-
-
-lc = LeetCodeCrawler()
-lc.crawl_all()
